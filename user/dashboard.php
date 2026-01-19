@@ -46,12 +46,12 @@ $error = '';
 // Handle barcode scan (clock in)
 if (isset($_POST['clock_in']) && $business['clocking_enabled'] && $user_permissions['can_clock_self']) {
     $barcode = trim($_POST['barcode']);
-    
+
     // Verify barcode belongs to logged-in user
     $stmt = $db->prepare("SELECT id FROM users WHERE id = ? AND barcode = ?");
     $stmt->bind_param("is", $user_id, $barcode);
     $stmt->execute();
-    
+
     if ($stmt->get_result()->num_rows > 0) {
         if (!$today_report) {
             $stmt = $db->prepare("INSERT INTO reports (user_id, report_date, clock_in_time, status) VALUES (?, ?, NOW(), 'clocked_in')");
@@ -137,13 +137,14 @@ $today_report = $stmt->get_result()->fetch_assoc();
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Staff Dashboard - TimeTrack Pro</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <script id="tailwind-config">
         tailwind.config = {
             theme: {
@@ -160,124 +161,36 @@ $today_report = $stmt->get_result()->fetch_assoc();
                     fontFamily: {
                         "display": ["Inter", "sans-serif"]
                     },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px" },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
                 },
             },
         }
     </script>
     <style>
-        .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
     </style>
 </head>
+
 <body class="bg-background font-display text-text-main antialiased transition-colors duration-200">
     <div class="flex h-screen w-full overflow-hidden">
-        <aside class="hidden w-64 flex-col border-r border-border-subtle bg-card md:flex" id="sidebar">
-            <div class="flex h-full flex-col justify-between p-4">
-                <div class="flex flex-col gap-6">
-                    <div class="flex items-center gap-3 px-2">
-                        <div class="bg-blue-50 flex items-center justify-center rounded-lg size-10 text-primary">
-                            <span class="material-symbols-outlined">schedule</span>
-                        </div>
-                        <div class="flex flex-col">
-                            <h1 class="text-base font-bold leading-tight text-slate-800">TimeTrack Pro</h1>
-                            <p class="text-slate-500 text-xs font-medium">Staff Portal</p>
-                        </div>
-                    </div>
-                    <nav class="flex flex-col gap-2">
-                        <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-blue-50 text-primary shadow-sm ring-1 ring-blue-100" href="#">
-                            <span class="material-symbols-outlined text-[20px]">dashboard</span>
-                            <p class="text-sm font-semibold">Dashboard</p>
-                        </a>
-                        <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="../teacher_timetable.php">
-                            <span class="material-symbols-outlined text-[20px]">calendar_month</span>
-                            <p class="text-sm font-medium">Timetable</p>
-                        </a>
-                        <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="../teacher_activity.php">
-                            <span class="material-symbols-outlined text-[20px]">task_alt</span>
-                            <p class="text-sm font-medium">Activities</p>
-                        </a>
-                        <?php if (isset($_SESSION['can_clock_others']) && $_SESSION['can_clock_others']): ?>
-                        <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="clock-others.php">
-                            <span class="material-symbols-outlined text-[20px]">group</span>
-                            <p class="text-sm font-medium">Clock Others</p>
-                        </a>
-                        <?php endif; ?>
-                        <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="../logout.php">
-                            <span class="material-symbols-outlined text-[20px]">logout</span>
-                            <p class="text-sm font-medium">Logout</p>
-                        </a>
-                    </nav>
-                </div>
-                <div class="flex items-center gap-3 rounded-xl border border-border-subtle p-3 bg-slate-50">
-                    <div class="bg-gradient-to-br from-blue-500 to-purple-600 rounded-full size-10 shrink-0 ring-2 ring-white flex items-center justify-center text-white font-semibold text-sm">
-                        <?php echo strtoupper(substr($_SESSION['user_name'], 0, 2)); ?>
-                    </div>
-                    <div class="flex flex-col min-w-0">
-                        <p class="text-sm font-semibold text-slate-800 truncate"><?php echo htmlspecialchars($_SESSION['user_name']); ?></p>
-                        <p class="text-xs text-slate-500 truncate"><?php echo ucfirst($_SESSION['category']); ?></p>
-                    </div>
-                </div>
-            </div>
-        </aside>
-        
-        <!-- Mobile Sidebar Overlay -->
-        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden hidden" onclick="toggleSidebar()"></div>
-        
-        <!-- Mobile Sidebar -->
-        <aside class="fixed left-0 top-0 h-full w-64 bg-card border-r border-border-subtle z-50 transform -translate-x-full transition-transform duration-300 md:hidden" id="mobile-sidebar">
-            <div class="flex h-full flex-col justify-between p-4">
-                <div class="flex flex-col gap-6">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-blue-50 flex items-center justify-center rounded-lg size-10 text-primary">
-                                <span class="material-symbols-outlined">schedule</span>
-                            </div>
-                            <div class="flex flex-col">
-                                <h1 class="text-base font-bold leading-tight text-slate-800">TimeTrack Pro</h1>
-                                <p class="text-slate-500 text-xs font-medium">Staff Portal</p>
-                            </div>
-                        </div>
-                        <button onclick="toggleSidebar()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg">
-                            <span class="material-symbols-outlined">close</span>
-                        </button>
-                    </div>
-                    <nav class="flex flex-col gap-2">
-                        <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-blue-50 text-primary shadow-sm ring-1 ring-blue-100" href="#">
-                            <span class="material-symbols-outlined text-[20px]">dashboard</span>
-                            <p class="text-sm font-semibold">Dashboard</p>
-                        </a>
-                        <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="../teacher_timetable.php">
-                            <span class="material-symbols-outlined text-[20px]">calendar_month</span>
-                            <p class="text-sm font-medium">Timetable</p>
-                        </a>
-                        <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="../teacher_activity.php">
-                            <span class="material-symbols-outlined text-[20px]">task_alt</span>
-                            <p class="text-sm font-medium">Activities</p>
-                        </a>
-                        <?php if (isset($_SESSION['can_clock_others']) && $_SESSION['can_clock_others']): ?>
-                        <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="clock-others.php">
-                            <span class="material-symbols-outlined text-[20px]">group</span>
-                            <p class="text-sm font-medium">Clock Others</p>
-                        </a>
-                        <?php endif; ?>
-                        <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="../logout.php">
-                            <span class="material-symbols-outlined text-[20px]">logout</span>
-                            <p class="text-sm font-medium">Logout</p>
-                        </a>
-                    </nav>
-                </div>
-                <div class="flex items-center gap-3 rounded-xl border border-border-subtle p-3 bg-slate-50">
-                    <div class="bg-gradient-to-br from-blue-500 to-purple-600 rounded-full size-10 shrink-0 ring-2 ring-white flex items-center justify-center text-white font-semibold text-sm">
-                        <?php echo strtoupper(substr($_SESSION['user_name'], 0, 2)); ?>
-                    </div>
-                    <div class="flex flex-col min-w-0">
-                        <p class="text-sm font-semibold text-slate-800 truncate"><?php echo htmlspecialchars($_SESSION['user_name']); ?></p>
-                        <p class="text-xs text-slate-500 truncate"><?php echo ucfirst($_SESSION['category']); ?></p>
-                    </div>
-                </div>
-            </div>
-        </aside>
-        
+        <?php
+        // Include sidebar component
+        $current_page = 'dashboard.php';
+        include 'sidebar.php';
+        ?>
+
         <main class="flex-1 flex flex-col h-full overflow-y-auto bg-background relative">
             <div class="md:hidden flex items-center justify-between p-4 border-b border-border-subtle bg-card">
                 <div class="flex items-center gap-2">
@@ -288,20 +201,20 @@ $today_report = $stmt->get_result()->fetch_assoc();
                     <span class="material-symbols-outlined">menu</span>
                 </button>
             </div>
-            
+
             <div class="layout-content-container flex flex-col max-w-[1200px] w-full mx-auto p-4 md:p-6 lg:p-8 gap-6 md:gap-8">
                 <?php if (isset($_GET['msg'])): ?>
                     <div class="p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg">
                         <?php echo htmlspecialchars($_GET['msg']); ?>
                     </div>
                 <?php endif; ?>
-                
+
                 <?php if ($error): ?>
                     <div class="p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg">
                         <?php echo $error; ?>
                     </div>
                 <?php endif; ?>
-                
+
                 <header class="flex flex-wrap justify-between items-end gap-4">
                     <div class="flex flex-col gap-2">
                         <h1 class="text-3xl md:text-4xl font-extrabold leading-tight tracking-tight text-slate-900">
@@ -328,7 +241,7 @@ $today_report = $stmt->get_result()->fetch_assoc();
                         </p>
                     </div>
                 </header>
-                
+
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2 flex flex-col gap-6">
                         <!-- Current Session Card -->
@@ -344,8 +257,8 @@ $today_report = $stmt->get_result()->fetch_assoc();
                                         <span class="material-symbols-outlined">timelapse</span>
                                     </div>
                                 </div>
-                                
-                                <?php if ($today_report && $today_report['clock_in_time'] && !$today_report['clock_out_time']): 
+
+                                <?php if ($today_report && $today_report['clock_in_time'] && !$today_report['clock_out_time']):
                                     $clockInTime = strtotime($today_report['clock_in_time']);
                                     $currentTime = time();
                                     $elapsed = $currentTime - $clockInTime;
@@ -353,40 +266,40 @@ $today_report = $stmt->get_result()->fetch_assoc();
                                     $minutes = floor(($elapsed % 3600) / 60);
                                     $seconds = $elapsed % 60;
                                 ?>
-                                <div class="flex items-end gap-2 md:gap-4 justify-center py-6 bg-slate-50/50 rounded-2xl border border-slate-100" id="timer-display">
-                                    <div class="flex flex-col items-center gap-2">
-                                        <div class="flex h-20 w-20 md:h-24 md:w-24 items-center justify-center rounded-xl bg-white border border-slate-200 shadow-sm">
-                                            <p class="text-4xl md:text-5xl font-mono font-bold tracking-tighter text-slate-900" id="hours"><?php echo sprintf('%02d', $hours); ?></p>
+                                    <div class="flex items-end gap-2 md:gap-4 justify-center py-6 bg-slate-50/50 rounded-2xl border border-slate-100" id="timer-display">
+                                        <div class="flex flex-col items-center gap-2">
+                                            <div class="flex h-20 w-20 md:h-24 md:w-24 items-center justify-center rounded-xl bg-white border border-slate-200 shadow-sm">
+                                                <p class="text-4xl md:text-5xl font-mono font-bold tracking-tighter text-slate-900" id="hours"><?php echo sprintf('%02d', $hours); ?></p>
+                                            </div>
+                                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Hours</p>
                                         </div>
-                                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Hours</p>
-                                    </div>
-                                    <div class="flex h-20 md:h-24 items-center pb-6">
-                                        <span class="text-3xl md:text-4xl font-bold text-slate-300">:</span>
-                                    </div>
-                                    <div class="flex flex-col items-center gap-2">
-                                        <div class="flex h-20 w-20 md:h-24 md:w-24 items-center justify-center rounded-xl bg-white border border-slate-200 shadow-sm">
-                                            <p class="text-4xl md:text-5xl font-mono font-bold tracking-tighter text-slate-900" id="minutes"><?php echo sprintf('%02d', $minutes); ?></p>
+                                        <div class="flex h-20 md:h-24 items-center pb-6">
+                                            <span class="text-3xl md:text-4xl font-bold text-slate-300">:</span>
                                         </div>
-                                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Minutes</p>
-                                    </div>
-                                    <div class="flex h-20 md:h-24 items-center pb-6">
-                                        <span class="text-3xl md:text-4xl font-bold text-slate-300">:</span>
-                                    </div>
-                                    <div class="flex flex-col items-center gap-2">
-                                        <div class="flex h-20 w-20 md:h-24 md:w-24 items-center justify-center rounded-xl bg-white border border-blue-200 shadow-sm ring-2 ring-blue-50">
-                                            <p class="text-primary text-4xl md:text-5xl font-mono font-bold tracking-tighter" id="seconds"><?php echo sprintf('%02d', $seconds); ?></p>
+                                        <div class="flex flex-col items-center gap-2">
+                                            <div class="flex h-20 w-20 md:h-24 md:w-24 items-center justify-center rounded-xl bg-white border border-slate-200 shadow-sm">
+                                                <p class="text-4xl md:text-5xl font-mono font-bold tracking-tighter text-slate-900" id="minutes"><?php echo sprintf('%02d', $minutes); ?></p>
+                                            </div>
+                                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Minutes</p>
                                         </div>
-                                        <p class="text-xs font-bold text-primary uppercase tracking-widest">Seconds</p>
+                                        <div class="flex h-20 md:h-24 items-center pb-6">
+                                            <span class="text-3xl md:text-4xl font-bold text-slate-300">:</span>
+                                        </div>
+                                        <div class="flex flex-col items-center gap-2">
+                                            <div class="flex h-20 w-20 md:h-24 md:w-24 items-center justify-center rounded-xl bg-white border border-blue-200 shadow-sm ring-2 ring-blue-50">
+                                                <p class="text-primary text-4xl md:text-5xl font-mono font-bold tracking-tighter" id="seconds"><?php echo sprintf('%02d', $seconds); ?></p>
+                                            </div>
+                                            <p class="text-xs font-bold text-primary uppercase tracking-widest">Seconds</p>
+                                        </div>
                                     </div>
-                                </div>
                                 <?php else: ?>
-                                <div class="flex items-end gap-2 md:gap-4 justify-center py-6 bg-slate-50/50 rounded-2xl border border-slate-100">
-                                    <div class="text-center py-8">
-                                        <p class="text-slate-500 text-lg font-medium">Not clocked in</p>
+                                    <div class="flex items-end gap-2 md:gap-4 justify-center py-6 bg-slate-50/50 rounded-2xl border border-slate-100">
+                                        <div class="text-center py-8">
+                                            <p class="text-slate-500 text-lg font-medium">Not clocked in</p>
+                                        </div>
                                     </div>
-                                </div>
                                 <?php endif; ?>
-                                
+
                                 <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-6 mt-2">
                                     <div class="flex flex-col gap-1">
                                         <p class="text-slate-500 text-sm font-medium">Last Clock In</p>
@@ -397,7 +310,7 @@ $today_report = $stmt->get_result()->fetch_assoc();
                                     <div class="flex flex-col gap-1 border-l border-slate-100 pl-6">
                                         <p class="text-slate-500 text-sm font-medium">Shift Total</p>
                                         <p class="text-slate-900 text-2xl font-bold">
-                                            <?php 
+                                            <?php
                                             if ($today_report && $today_report['clock_in_time']) {
                                                 $clockInTime = strtotime($today_report['clock_in_time']);
                                                 $endTime = $today_report['clock_out_time'] ? strtotime($today_report['clock_out_time']) : time();
@@ -414,34 +327,34 @@ $today_report = $stmt->get_result()->fetch_assoc();
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Clock In/Out Buttons -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <?php if ($business['clocking_enabled'] && $user_permissions['can_clock_self'] && (!$today_report || !$today_report['clock_in_time'])): ?>
-                            <form method="POST" class="contents">
-                                <input type="hidden" name="barcode" id="barcode-input">
-                                <button type="button" onclick="promptBarcode('clock_in')" class="group relative flex h-36 w-full flex-col items-center justify-center gap-3 rounded-2xl bg-white border-2 border-emerald-100 hover:border-emerald-200 hover:bg-emerald-50 hover:shadow-md transition-all duration-200">
-                                    <div class="rounded-full bg-emerald-100 p-4 text-emerald-600 group-hover:scale-110 group-hover:bg-emerald-200 transition-all shadow-sm">
+                                <form method="POST" class="contents">
+                                    <input type="hidden" name="barcode" id="barcode-input">
+                                    <button type="button" onclick="promptBarcode('clock_in')" class="group relative flex h-36 w-full flex-col items-center justify-center gap-3 rounded-2xl bg-white border-2 border-emerald-100 hover:border-emerald-200 hover:bg-emerald-50 hover:shadow-md transition-all duration-200">
+                                        <div class="rounded-full bg-emerald-100 p-4 text-emerald-600 group-hover:scale-110 group-hover:bg-emerald-200 transition-all shadow-sm">
+                                            <span class="material-symbols-outlined text-[32px]">play_arrow</span>
+                                        </div>
+                                        <div class="flex flex-col items-center">
+                                            <p class="text-xl font-bold text-emerald-600 group-hover:text-emerald-700">Clock In</p>
+                                            <p class="text-sm text-slate-500 font-medium">Start your shift</p>
+                                        </div>
+                                    </button>
+                                </form>
+                            <?php else: ?>
+                                <button class="group relative flex h-36 w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 opacity-60 cursor-not-allowed transition-all" disabled>
+                                    <div class="rounded-full bg-white p-4 text-slate-400 shadow-sm ring-1 ring-slate-100">
                                         <span class="material-symbols-outlined text-[32px]">play_arrow</span>
                                     </div>
                                     <div class="flex flex-col items-center">
-                                        <p class="text-xl font-bold text-emerald-600 group-hover:text-emerald-700">Clock In</p>
-                                        <p class="text-sm text-slate-500 font-medium">Start your shift</p>
+                                        <p class="text-lg font-bold text-slate-400">Clock In</p>
+                                        <p class="text-sm text-slate-400 font-medium"><?php echo $today_report && $today_report['clock_in_time'] ? 'Already clocked in' : 'Admin only'; ?></p>
                                     </div>
                                 </button>
-                            </form>
-                            <?php else: ?>
-                            <button class="group relative flex h-36 w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 opacity-60 cursor-not-allowed transition-all" disabled>
-                                <div class="rounded-full bg-white p-4 text-slate-400 shadow-sm ring-1 ring-slate-100">
-                                    <span class="material-symbols-outlined text-[32px]">play_arrow</span>
-                                </div>
-                                <div class="flex flex-col items-center">
-                                    <p class="text-lg font-bold text-slate-400">Clock In</p>
-                                    <p class="text-sm text-slate-400 font-medium"><?php echo $today_report && $today_report['clock_in_time'] ? 'Already clocked in' : 'Admin only'; ?></p>
-                                </div>
-                            </button>
                             <?php endif; ?>
-                            
+
                             <button class="group relative flex h-36 w-full flex-col items-center justify-center gap-3 rounded-2xl bg-white border-2 border-rose-100 hover:border-rose-200 hover:bg-rose-50 hover:shadow-md transition-all duration-200 opacity-60 cursor-not-allowed" disabled>
                                 <div class="rounded-full bg-rose-100 p-4 text-rose-600 group-hover:scale-110 group-hover:bg-rose-200 transition-all shadow-sm">
                                     <span class="material-symbols-outlined text-[32px]">stop</span>
@@ -453,79 +366,79 @@ $today_report = $stmt->get_result()->fetch_assoc();
                             </button>
                         </div>
                     </div>
-                    
+
                     <div class="flex flex-col gap-6">
                         <div class="flex items-center justify-between">
                             <h3 class="text-lg font-bold text-slate-900">Daily Tasks</h3>
                         </div>
-                        
+
                         <div class="flex flex-col gap-4">
                             <!-- Work Plan Card -->
                             <?php if ($business['reporting_enabled'] && $today_report && $today_report['clock_in_time'] && $today_report['plan_submitted_at']): ?>
-                            <div class="flex flex-col rounded-xl bg-white border border-border-subtle p-5 shadow-sm">
-                                <div class="flex justify-between items-start mb-4">
-                                    <div class="rounded-lg bg-emerald-50 p-2.5 text-emerald-600 ring-1 ring-emerald-100">
-                                        <span class="material-symbols-outlined">assignment_turned_in</span>
+                                <div class="flex flex-col rounded-xl bg-white border border-border-subtle p-5 shadow-sm">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class="rounded-lg bg-emerald-50 p-2.5 text-emerald-600 ring-1 ring-emerald-100">
+                                            <span class="material-symbols-outlined">assignment_turned_in</span>
+                                        </div>
+                                        <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">Submitted</span>
                                     </div>
-                                    <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">Submitted</span>
-                                </div>
-                                <h4 class="text-lg font-bold text-slate-900">Work Plan</h4>
-                                <p class="text-sm text-slate-500 mt-1 mb-4">Daily tasks and goals for today.</p>
-                                <div class="mt-auto pt-3 border-t border-slate-50">
-                                    <div class="flex items-center gap-2 text-xs font-medium text-emerald-600 bg-emerald-50 w-fit px-2 py-1 rounded">
-                                        <span class="material-symbols-outlined text-[14px]">check_circle</span>
-                                        Submitted at <?php echo date('h:i A', strtotime($today_report['plan_submitted_at'])); ?>
+                                    <h4 class="text-lg font-bold text-slate-900">Work Plan</h4>
+                                    <p class="text-sm text-slate-500 mt-1 mb-4">Daily tasks and goals for today.</p>
+                                    <div class="mt-auto pt-3 border-t border-slate-50">
+                                        <div class="flex items-center gap-2 text-xs font-medium text-emerald-600 bg-emerald-50 w-fit px-2 py-1 rounded">
+                                            <span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                            Submitted at <?php echo date('h:i A', strtotime($today_report['plan_submitted_at'])); ?>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                             <?php elseif ($business['reporting_enabled'] && $today_report && $today_report['clock_in_time'] && !$today_report['plan_submitted_at']): ?>
-                            <button onclick="showPlanForm()" class="flex flex-col text-left rounded-xl bg-white border border-border-subtle p-5 shadow-sm group hover:border-primary hover:shadow-md transition-all duration-200">
-                                <div class="flex justify-between items-start mb-4">
-                                    <div class="rounded-lg bg-amber-50 p-2.5 text-amber-600 group-hover:bg-amber-100 transition-colors ring-1 ring-amber-100">
-                                        <span class="material-symbols-outlined">assignment</span>
+                                <button onclick="showPlanForm()" class="flex flex-col text-left rounded-xl bg-white border border-border-subtle p-5 shadow-sm group hover:border-primary hover:shadow-md transition-all duration-200">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class="rounded-lg bg-amber-50 p-2.5 text-amber-600 group-hover:bg-amber-100 transition-colors ring-1 ring-amber-100">
+                                            <span class="material-symbols-outlined">assignment</span>
+                                        </div>
+                                        <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-inset ring-amber-600/20">Pending</span>
                                     </div>
-                                    <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-inset ring-amber-600/20">Pending</span>
-                                </div>
-                                <h4 class="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors">Work Plan</h4>
-                                <p class="text-sm text-slate-500 mt-1 mb-4">Daily tasks and goals for today.</p>
-                                <div class="w-full rounded-lg bg-primary py-3 text-center text-sm font-semibold text-white shadow hover:bg-primary-hover hover:shadow-lg transition-all">
-                                    Create Plan
-                                </div>
-                            </button>
+                                    <h4 class="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors">Work Plan</h4>
+                                    <p class="text-sm text-slate-500 mt-1 mb-4">Daily tasks and goals for today.</p>
+                                    <div class="w-full rounded-lg bg-primary py-3 text-center text-sm font-semibold text-white shadow hover:bg-primary-hover hover:shadow-lg transition-all">
+                                        Create Plan
+                                    </div>
+                                </button>
                             <?php endif; ?>
-                            
+
                             <!-- Daily Report Card -->
                             <?php if ($business['reporting_enabled'] && $today_report && $today_report['plan_submitted_at'] && $today_report['report_submitted_at']): ?>
-                            <div class="flex flex-col rounded-xl bg-white border border-border-subtle p-5 shadow-sm">
-                                <div class="flex justify-between items-start mb-4">
-                                    <div class="rounded-lg bg-emerald-50 p-2.5 text-emerald-600 ring-1 ring-emerald-100">
-                                        <span class="material-symbols-outlined">summarize</span>
+                                <div class="flex flex-col rounded-xl bg-white border border-border-subtle p-5 shadow-sm">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class="rounded-lg bg-emerald-50 p-2.5 text-emerald-600 ring-1 ring-emerald-100">
+                                            <span class="material-symbols-outlined">summarize</span>
+                                        </div>
+                                        <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">Submitted</span>
                                     </div>
-                                    <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">Submitted</span>
-                                </div>
-                                <h4 class="text-lg font-bold text-slate-900">Daily Report</h4>
-                                <p class="text-sm text-slate-500 mt-1 mb-4">End of day summary and outcomes.</p>
-                                <div class="mt-auto pt-3 border-t border-slate-50">
-                                    <div class="flex items-center gap-2 text-xs font-medium text-emerald-600 bg-emerald-50 w-fit px-2 py-1 rounded">
-                                        <span class="material-symbols-outlined text-[14px]">check_circle</span>
-                                        Submitted at <?php echo date('h:i A', strtotime($today_report['report_submitted_at'])); ?>
+                                    <h4 class="text-lg font-bold text-slate-900">Daily Report</h4>
+                                    <p class="text-sm text-slate-500 mt-1 mb-4">End of day summary and outcomes.</p>
+                                    <div class="mt-auto pt-3 border-t border-slate-50">
+                                        <div class="flex items-center gap-2 text-xs font-medium text-emerald-600 bg-emerald-50 w-fit px-2 py-1 rounded">
+                                            <span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                            Submitted at <?php echo date('h:i A', strtotime($today_report['report_submitted_at'])); ?>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                             <?php elseif ($business['reporting_enabled'] && $today_report && $today_report['plan_submitted_at'] && !$today_report['report_submitted_at']): ?>
-                            <button onclick="showReportForm()" class="flex flex-col text-left rounded-xl bg-white border border-border-subtle p-5 shadow-sm group hover:border-primary hover:shadow-md transition-all duration-200">
-                                <div class="flex justify-between items-start mb-4">
-                                    <div class="rounded-lg bg-amber-50 p-2.5 text-amber-600 group-hover:bg-amber-100 transition-colors ring-1 ring-amber-100">
-                                        <span class="material-symbols-outlined">summarize</span>
+                                <button onclick="showReportForm()" class="flex flex-col text-left rounded-xl bg-white border border-border-subtle p-5 shadow-sm group hover:border-primary hover:shadow-md transition-all duration-200">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class="rounded-lg bg-amber-50 p-2.5 text-amber-600 group-hover:bg-amber-100 transition-colors ring-1 ring-amber-100">
+                                            <span class="material-symbols-outlined">summarize</span>
+                                        </div>
+                                        <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-inset ring-amber-600/20">Pending</span>
                                     </div>
-                                    <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-inset ring-amber-600/20">Pending</span>
-                                </div>
-                                <h4 class="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors">Daily Report</h4>
-                                <p class="text-sm text-slate-500 mt-1 mb-4">End of day summary and outcomes.</p>
-                                <div class="w-full rounded-lg bg-primary py-3 text-center text-sm font-semibold text-white shadow hover:bg-primary-hover hover:shadow-lg transition-all">
-                                    Create Report
-                                </div>
-                            </button>
+                                    <h4 class="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors">Daily Report</h4>
+                                    <p class="text-sm text-slate-500 mt-1 mb-4">End of day summary and outcomes.</p>
+                                    <div class="w-full rounded-lg bg-primary py-3 text-center text-sm font-semibold text-white shadow hover:bg-primary-hover hover:shadow-lg transition-all">
+                                        Create Report
+                                    </div>
+                                </button>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -533,7 +446,7 @@ $today_report = $stmt->get_result()->fetch_assoc();
             </div>
         </main>
     </div>
-    
+
     <!-- Plan Form Modal -->
     <div id="plan-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl max-w-md w-full p-6">
@@ -559,7 +472,7 @@ $today_report = $stmt->get_result()->fetch_assoc();
             </form>
         </div>
     </div>
-    
+
     <!-- Report Form Modal -->
     <div id="report-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl max-w-md w-full p-6">
@@ -570,10 +483,10 @@ $today_report = $stmt->get_result()->fetch_assoc();
                 </button>
             </div>
             <?php if ($today_report && $today_report['plan']): ?>
-            <div class="mb-4 p-3 bg-slate-50 rounded-lg">
-                <p class="text-sm font-medium text-slate-700 mb-1">Your Plan:</p>
-                <p class="text-sm text-slate-600"><?php echo nl2br(htmlspecialchars($today_report['plan'])); ?></p>
-            </div>
+                <div class="mb-4 p-3 bg-slate-50 rounded-lg">
+                    <p class="text-sm font-medium text-slate-700 mb-1">Your Plan:</p>
+                    <p class="text-sm text-slate-600"><?php echo nl2br(htmlspecialchars($today_report['plan'])); ?></p>
+                </div>
             <?php endif; ?>
             <form method="POST">
                 <div class="mb-4">
@@ -591,13 +504,13 @@ $today_report = $stmt->get_result()->fetch_assoc();
             </form>
         </div>
     </div>
-    
+
     <script>
         // Toggle mobile sidebar
         function toggleSidebar() {
             const mobileSidebar = document.getElementById('mobile-sidebar');
             const overlay = document.getElementById('sidebar-overlay');
-            
+
             if (mobileSidebar.classList.contains('-translate-x-full')) {
                 mobileSidebar.classList.remove('-translate-x-full');
                 overlay.classList.remove('hidden');
@@ -606,7 +519,7 @@ $today_report = $stmt->get_result()->fetch_assoc();
                 overlay.classList.add('hidden');
             }
         }
-        
+
         // Update time every second
         function updateTime() {
             const now = new Date();
@@ -617,28 +530,28 @@ $today_report = $stmt->get_result()->fetch_assoc();
             });
         }
         setInterval(updateTime, 1000);
-        
+
         // Update timer if clocked in
         <?php if ($today_report && $today_report['clock_in_time'] && !$today_report['clock_out_time']): ?>
-        const clockInTime = new Date('<?php echo date('c', strtotime($today_report['clock_in_time'])); ?>');
-        
-        function updateTimer() {
-            const now = new Date();
-            const elapsed = Math.floor((now - clockInTime) / 1000);
-            
-            const hours = Math.floor(elapsed / 3600);
-            const minutes = Math.floor((elapsed % 3600) / 60);
-            const seconds = elapsed % 60;
-            
-            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
-        }
-        
-        setInterval(updateTimer, 1000);
-        updateTimer();
+            const clockInTime = new Date('<?php echo date('c', strtotime($today_report['clock_in_time'])); ?>');
+
+            function updateTimer() {
+                const now = new Date();
+                const elapsed = Math.floor((now - clockInTime) / 1000);
+
+                const hours = Math.floor(elapsed / 3600);
+                const minutes = Math.floor((elapsed % 3600) / 60);
+                const seconds = elapsed % 60;
+
+                document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+                document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+            }
+
+            setInterval(updateTimer, 1000);
+            updateTimer();
         <?php endif; ?>
-        
+
         function promptBarcode(action) {
             const barcode = prompt('Please scan or enter your barcode:');
             if (barcode) {
@@ -648,33 +561,33 @@ $today_report = $stmt->get_result()->fetch_assoc();
                 }
             }
         }
-        
+
         function showPlanForm() {
             document.getElementById('plan-modal').classList.remove('hidden');
         }
-        
+
         function hidePlanForm() {
             document.getElementById('plan-modal').classList.add('hidden');
         }
-        
+
         function showReportForm() {
             document.getElementById('report-modal').classList.remove('hidden');
         }
-        
+
         function hideReportForm() {
             document.getElementById('report-modal').classList.add('hidden');
         }
-        
+
         function editPlan() {
             document.getElementById('plan-modal').classList.remove('hidden');
             document.querySelector('textarea[name="plan"]').value = '<?php echo addslashes($today_report['plan'] ?? ''); ?>';
         }
-        
+
         function editReport() {
             document.getElementById('report-modal').classList.remove('hidden');
             document.querySelector('textarea[name="daily_report"]').value = '<?php echo addslashes($today_report['daily_report'] ?? ''); ?>';
         }
-        
+
         // Add hidden submit buttons for form submission
         document.addEventListener('DOMContentLoaded', function() {
             const clockInForm = document.querySelector('form[method="POST"]');
@@ -688,4 +601,5 @@ $today_report = $stmt->get_result()->fetch_assoc();
         });
     </script>
 </body>
+
 </html>
