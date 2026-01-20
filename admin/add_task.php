@@ -110,23 +110,7 @@ $users = $users_stmt->get_result();
 
         <!-- Main Content Wrapper -->
         <main class="flex-1 flex flex-col h-full overflow-hidden relative">
-            <!-- Top Navigation -->
-            <header class="flex-shrink-0 bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark px-6 py-3 flex items-center justify-between z-10">
-                <div class="flex items-center gap-4 md:hidden">
-                    <button class="text-text-secondary">
-                        <span class="material-symbols-outlined">menu</span>
-                    </button>
-                    <span class="text-lg font-bold">TimeTrack Pro</span>
-                </div>
-                <div class="hidden md:flex flex-1">
-                    <h2 class="text-xl font-semibold text-text-main dark:text-white">Add Task</h2>
-                </div>
-                <div class="flex items-center gap-4">
-                    <a href="../logout.php" class="p-2 text-text-secondary hover:bg-background-light dark:hover:bg-slate-700 rounded-full transition-colors">
-                        <span class="material-symbols-outlined">logout</span>
-                    </a>
-                </div>
-            </header>
+            <?php include 'header.php'; ?>
 
             <!-- Scrollable Page Content -->
             <div class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark">

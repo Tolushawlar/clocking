@@ -66,6 +66,39 @@ $business = $stmt->get_result()->fetch_assoc();
         .material-symbols-outlined.filled {
             font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
+
+        /* Toast Notifications */
+        .toast {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.hide {
+            animation: slideOut 0.3s ease-in forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 
@@ -79,24 +112,7 @@ $business = $stmt->get_result()->fetch_assoc();
 
         <!-- Main Content Wrapper -->
         <main class="flex-1 flex flex-col h-full overflow-hidden relative">
-            <!-- Top Navigation -->
-            <header class="flex-shrink-0 bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark px-6 py-3 flex items-center justify-between z-10">
-                <div class="flex items-center gap-4 md:hidden">
-                    <button class="text-text-secondary">
-                        <span class="material-symbols-outlined">menu</span>
-                    </button>
-                    <span class="text-lg font-bold">TimeTrack Pro</span>
-                </div>
-                <div class="hidden md:flex flex-1">
-                    <h2 class="text-xl font-semibold text-text-main dark:text-white">Staff Clock In/Out</h2>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="text-right">
-                        <div class="text-lg font-bold text-text-main dark:text-white" id="current-time"></div>
-                        <div class="text-xs text-text-secondary" id="current-date"></div>
-                    </div>
-                </div>
-            </header>
+            <?php include 'header.php'; ?>
 
             <!-- Scrollable Page Content -->
             <div class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark flex items-center justify-center">
@@ -137,7 +153,43 @@ $business = $stmt->get_result()->fetch_assoc();
         </main>
     </div>
 
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none">
+    </div>
+
     <script>
+        // Toast notification function
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast pointer-events-auto bg-white dark:bg-slate-800 rounded-lg shadow-2xl border-l-4 p-4 flex items-start gap-3 ${type === 'error' ? 'border-red-500' : 'border-green-500'}`;
+
+            const iconBg = type === 'error' ? 'bg-red-100 dark:bg-red-900/30' : 'bg-green-100 dark:bg-green-900/30';
+            const iconColor = type === 'error' ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400';
+            const icon = type === 'error' ? 'error' : 'check_circle';
+
+            toast.innerHTML = `
+                <div class="flex-shrink-0 size-10 rounded-full ${iconBg} flex items-center justify-center">
+                    <span class="material-symbols-outlined ${iconColor} text-xl">${icon}</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-text-main dark:text-white mb-1">${type === 'error' ? 'Error' : 'Success'}</p>
+                    <p class="text-sm text-text-secondary">${message}</p>
+                </div>
+                <button onclick="this.parentElement.classList.add('hide')" class="flex-shrink-0 text-text-secondary hover:text-text-main transition-colors">
+                    <span class="material-symbols-outlined text-lg">close</span>
+                </button>
+            `;
+
+            container.appendChild(toast);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
         // Update time
         function updateTime() {
             const now = new Date();
@@ -192,12 +244,13 @@ $business = $stmt->get_result()->fetch_assoc();
                                         messageEl.textContent = result.message;
                                         detailsEl.textContent = 'Time: ' + new Date().toLocaleTimeString();
                                         resultDiv.classList.remove('hidden');
+                                        showToast(result.message, 'success');
 
                                         setTimeout(() => {
                                             resultDiv.classList.add('hidden');
                                         }, 3000);
                                     } else {
-                                        alert('Error: ' + result.error);
+                                        showToast(result.error || 'An error occurred', 'error');
                                     }
                                     e.target.value = '';
                                 });

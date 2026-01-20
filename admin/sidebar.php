@@ -100,13 +100,13 @@ function getIconClass($page, $current, $tab = '')
                     <span class="material-symbols-outlined <?php echo isActiveIcon('dashboard.php', $current_page, 'reports'); ?> <?php echo getIconClass('dashboard.php', $current_page, 'reports'); ?>">assessment</span>
                     <span class="text-sm <?php echo $current_page === 'dashboard.php' ? 'font-semibold' : 'font-medium'; ?>">Reports</span>
                 </a>
-                <a class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg <?php echo isActive('dashboard.php', $current_page, 'users'); ?> transition-colors group" href="dashboard.php#users" data-page="dashboard.php" data-tab="users">
-                    <span class="material-symbols-outlined <?php echo isActiveIcon('dashboard.php', $current_page, 'users'); ?> <?php echo getIconClass('dashboard.php', $current_page, 'users'); ?>">people</span>
-                    <span class="text-sm <?php echo $current_page === 'dashboard.php' ? 'font-semibold' : 'font-medium'; ?>">Users</span>
+                <a class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg <?php echo isActive('users.php', $current_page); ?> transition-colors group" href="users.php" data-page="users.php">
+                    <span class="material-symbols-outlined <?php echo isActiveIcon('users.php', $current_page); ?> <?php echo getIconClass('users.php', $current_page); ?>">people</span>
+                    <span class="text-sm <?php echo $current_page === 'users.php' ? 'font-semibold' : 'font-medium'; ?>">Users</span>
                 </a>
-                <a class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg <?php echo isActive('dashboard.php', $current_page, 'settings'); ?> transition-colors group" href="dashboard.php#settings" data-page="dashboard.php" data-tab="settings">
-                    <span class="material-symbols-outlined <?php echo isActiveIcon('dashboard.php', $current_page, 'settings'); ?> <?php echo getIconClass('dashboard.php', $current_page, 'settings'); ?>">settings</span>
-                    <span class="text-sm <?php echo $current_page === 'dashboard.php' ? 'font-semibold' : 'font-medium'; ?>">Settings</span>
+                <a class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg <?php echo isActive('settings.php', $current_page); ?> transition-colors group" href="settings.php" data-page="settings.php">
+                    <span class="material-symbols-outlined <?php echo isActiveIcon('settings.php', $current_page); ?> <?php echo getIconClass('settings.php', $current_page); ?>">settings</span>
+                    <span class="text-sm <?php echo $current_page === 'settings.php' ? 'font-semibold' : 'font-medium'; ?>">Settings</span>
                 </a>
             </nav>
         </div>

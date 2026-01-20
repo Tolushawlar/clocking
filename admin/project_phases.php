@@ -154,30 +154,7 @@ $phases = $phases_stmt->get_result();
 
         <!-- Main Content Wrapper -->
         <main class="flex-1 flex flex-col h-full overflow-hidden relative">
-            <!-- Top Navigation -->
-            <header class="flex-shrink-0 bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark px-6 py-3 flex items-center justify-between z-10">
-                <div class="flex items-center gap-4 md:hidden">
-                    <button class="text-text-secondary">
-                        <span class="material-symbols-outlined">menu</span>
-                    </button>
-                    <span class="text-lg font-bold">TimeTrack Pro</span>
-                </div>
-                <div class="hidden md:flex flex-1">
-                    <div class="relative w-full max-w-md">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span class="material-symbols-outlined text-text-secondary">search</span>
-                        </div>
-                        <input class="block w-full pl-10 pr-3 py-2 border-none rounded-lg leading-5 bg-background-light dark:bg-slate-800 text-text-main dark:text-white placeholder-text-secondary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm" placeholder="Search phases and tasks..." type="text" />
-                    </div>
-                </div>
-                <div class="flex items-center gap-4">
-                    <button class="p-2 text-text-secondary hover:bg-background-light dark:hover:bg-slate-700 rounded-full transition-colors relative">
-                        <span class="material-symbols-outlined">notifications</span>
-                        <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-surface-light dark:border-surface-dark"></span>
-                    </button>
-                    <div class="h-8 w-8 rounded-full bg-cover bg-center border border-border-light" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBSBfpdqQBQgGld3Icgsto2cnz_krZW7C4cA3fku_S3QIKlg3UPP360tqJ1Z5pvCC5bNIB8ij9qFLfFZR-DsyrHtyaXMh6EFuvoOKYTeP_bfjdb9GnAak8Rq5AN1ATMFC062CwzQhylg8k1QfRx5pH9CMoLSnR_u9WjmyqdbD8CLiWzHMGGq8wn_qsJuGBzxRRNgD-0NwHiH5o4RccYyduyA5i4WGKTPsE4soDPa74x3T2K5rJa2Jq70WS7PouvLrUbKjcVaW3e5iY");'></div>
-                </div>
-            </header>
+            <?php include 'header.php'; ?>
 
             <!-- Scrollable Page Content -->
             <div class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark">
@@ -328,6 +305,25 @@ $phases = $phases_stmt->get_result();
             </form>
         </div>
     </div>
+
+    <script>
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', {
+                hour12: true,
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
 
     <script>
         function showAddPhaseModal() {

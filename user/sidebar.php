@@ -57,6 +57,10 @@ function getFontWeightUser($page, $current)
                         <p class="text-sm <?php echo getFontWeightUser('clock-others.php', $current_page); ?>">Clock Others</p>
                     </a>
                 <?php endif; ?>
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg <?php echo isActiveUser('settings.php', $current_page); ?> transition-colors" href="settings.php">
+                    <span class="material-symbols-outlined text-[20px]">settings</span>
+                    <p class="text-sm <?php echo getFontWeightUser('settings.php', $current_page); ?>">Settings</p>
+                </a>
                 <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="../logout.php">
                     <span class="material-symbols-outlined text-[20px]">logout</span>
                     <p class="text-sm font-medium">Logout</p>
@@ -119,6 +123,10 @@ function getFontWeightUser($page, $current)
                         <p class="text-sm <?php echo getFontWeightUser('clock-others.php', $current_page); ?>">Clock Others</p>
                     </a>
                 <?php endif; ?>
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg <?php echo isActiveUser('settings.php', $current_page); ?> transition-colors" href="settings.php">
+                    <span class="material-symbols-outlined text-[20px]">settings</span>
+                    <p class="text-sm <?php echo getFontWeightUser('settings.php', $current_page); ?>">Settings</p>
+                </a>
                 <a class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="../logout.php">
                     <span class="material-symbols-outlined text-[20px]">logout</span>
                     <p class="text-sm font-medium">Logout</p>
