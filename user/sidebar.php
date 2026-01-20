@@ -35,6 +35,12 @@ function getFontWeightUser($page, $current)
                     <span class="material-symbols-outlined text-[20px]">dashboard</span>
                     <p class="text-sm <?php echo getFontWeightUser('dashboard.php', $current_page); ?>">Dashboard</p>
                 </a>
+                <?php if (isset($_SESSION['can_clock_others']) && $_SESSION['can_clock_others']): ?>
+                    <a class="flex items-center gap-3 px-3 py-3 rounded-lg <?php echo isActiveUser('clock-others.php', $current_page); ?> transition-colors" href="clock-others.php">
+                        <span class="material-symbols-outlined text-[20px]">group</span>
+                        <p class="text-sm <?php echo getFontWeightUser('clock-others.php', $current_page); ?>">Clock Others</p>
+                    </a>
+                <?php endif; ?>
                 <a class="flex items-center gap-3 px-3 py-3 rounded-lg <?php echo isActiveUser('projects.php', $current_page); ?> transition-colors" href="projects.php">
                     <span class="material-symbols-outlined text-[20px]">work</span>
                     <p class="text-sm <?php echo getFontWeightUser('projects.php', $current_page); ?>">My Projects</p>
@@ -43,20 +49,14 @@ function getFontWeightUser($page, $current)
                     <span class="material-symbols-outlined text-[20px]">assignment</span>
                     <p class="text-sm <?php echo getFontWeightUser('tasks.php', $current_page); ?>">My Tasks</p>
                 </a>
-                <a class="flex items-center gap-3 px-3 py-3 rounded-lg <?php echo isActiveUser('teacher_timetable.php', $current_page); ?> transition-colors" href="../teacher_timetable.php">
+                <!-- <a class="flex items-center gap-3 px-3 py-3 rounded-lg <?php echo isActiveUser('teacher_timetable.php', $current_page); ?> transition-colors" href="../teacher_timetable.php">
                     <span class="material-symbols-outlined text-[20px]">calendar_month</span>
                     <p class="text-sm <?php echo getFontWeightUser('teacher_timetable.php', $current_page); ?>">Timetable</p>
                 </a>
                 <a class="flex items-center gap-3 px-3 py-3 rounded-lg <?php echo isActiveUser('teacher_activity.php', $current_page); ?> transition-colors" href="../teacher_activity.php">
                     <span class="material-symbols-outlined text-[20px]">task_alt</span>
                     <p class="text-sm <?php echo getFontWeightUser('teacher_activity.php', $current_page); ?>">Activities</p>
-                </a>
-                <?php if (isset($_SESSION['can_clock_others']) && $_SESSION['can_clock_others']): ?>
-                    <a class="flex items-center gap-3 px-3 py-3 rounded-lg <?php echo isActiveUser('clock-others.php', $current_page); ?> transition-colors" href="clock-others.php">
-                        <span class="material-symbols-outlined text-[20px]">group</span>
-                        <p class="text-sm <?php echo getFontWeightUser('clock-others.php', $current_page); ?>">Clock Others</p>
-                    </a>
-                <?php endif; ?>
+                </a> -->
                 <a class="flex items-center gap-3 px-3 py-3 rounded-lg <?php echo isActiveUser('settings.php', $current_page); ?> transition-colors" href="settings.php">
                     <span class="material-symbols-outlined text-[20px]">settings</span>
                     <p class="text-sm <?php echo getFontWeightUser('settings.php', $current_page); ?>">Settings</p>
