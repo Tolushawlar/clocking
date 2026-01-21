@@ -48,18 +48,28 @@ if ($_POST) {
     }
 
     if (isset($_POST['add_member'])) {
-        $member_id = $_POST['member_id'];
+        $member_ids = $_POST['member_ids'] ?? [];
 
-        $stmt = $db->prepare("INSERT IGNORE INTO team_members (team_id, user_id, added_by) VALUES (?, ?, ?)");
-        $stmt->bind_param("iii", $team_id, $member_id, $user_id);
-        $stmt->execute();
+        if (!empty($member_ids)) {
+            $added_count = 0;
+            foreach ($member_ids as $member_id) {
+                $member_id = (int)$member_id;
 
-        $stmt = $db->prepare("UPDATE users SET user_role = 'team_member' WHERE id = ?");
-        $stmt->bind_param("i", $member_id);
-        $stmt->execute();
+                $stmt = $db->prepare("INSERT IGNORE INTO team_members (team_id, user_id, added_by) VALUES (?, ?, ?)");
+                $stmt->bind_param("iii", $team_id, $member_id, $user_id);
+                if ($stmt->execute()) {
+                    $added_count++;
+                }
 
-        header('Location: team_details.php?id=' . $team_id . '&msg=Member added successfully');
-        exit;
+                $stmt = $db->prepare("UPDATE users SET user_role = 'team_member' WHERE id = ?");
+                $stmt->bind_param("i", $member_id);
+                $stmt->execute();
+            }
+
+            $msg = $added_count > 1 ? "$added_count members added successfully" : "Member added successfully";
+            header('Location: team_details.php?id=' . $team_id . '&msg=' . urlencode($msg));
+            exit;
+        }
     }
 
     if (isset($_POST['create_project'])) {
@@ -402,27 +412,40 @@ while ($row = $result->fetch_assoc()) {
     <div id="addMemberModal" class="fixed inset-0 bg-black/50 z-50 hidden">
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-surface-light dark:bg-surface-dark rounded-xl max-w-md w-full p-6 border border-border-light dark:border-border-dark">
-                <h3 class="text-lg font-semibold mb-4 text-text-main dark:text-white">Add Team Member</h3>
+                <h3 class="text-lg font-semibold mb-4 text-text-main dark:text-white">Add Team Members</h3>
                 <?php if (empty($available_users)): ?>
                     <p class="text-text-secondary text-center py-4">No available users to add to this team.</p>
                     <button onclick="closeAddMemberModal()" class="w-full px-4 py-2 bg-background-light dark:bg-slate-700 text-text-secondary rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">Close</button>
                 <?php else: ?>
-                    <form method="POST" class="space-y-4">
+                    <form method="POST" class="space-y-4" id="addMemberForm">
                         <input type="hidden" name="add_member" value="1">
                         <div>
-                            <label class="block text-sm font-medium mb-2 text-text-main dark:text-white">Select User</label>
-                            <select name="member_id" required class="w-full px-3 py-2 border border-border-light dark:border-border-dark rounded-lg bg-surface-light dark:bg-slate-800 text-text-main dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                                <option value="">Choose a user...</option>
-                                <?php foreach ($available_users as $user): ?>
-                                    <option value="<?php echo $user['id']; ?>">
-                                        <?php echo htmlspecialchars($user['firstname'] . ' ' . $user['lastname']); ?>
-                                    </option>
+                            <div class="flex items-center justify-between mb-3">
+                                <label class="block text-sm font-medium text-text-main dark:text-white">Select Users</label>
+                                <button type="button" onclick="toggleSelectAll()" class="text-xs text-primary hover:underline font-medium">Select All</button>
+                            </div>
+                            <div class="border border-border-light dark:border-border-dark rounded-lg bg-surface-light dark:bg-slate-800 max-h-64 overflow-y-auto">
+                                <?php foreach ($available_users as $index => $user): ?>
+                                    <label class="flex items-center gap-3 px-4 py-3 hover:bg-background-light dark:hover:bg-slate-700 cursor-pointer transition-colors <?php echo $index > 0 ? 'border-t border-border-light dark:border-border-dark' : ''; ?>">
+                                        <input type="checkbox" name="member_ids[]" value="<?php echo $user['id']; ?>" class="member-checkbox rounded border-gray-300 text-primary focus:ring-primary/20 cursor-pointer w-4 h-4" onchange="updateSelectedCount()">
+                                        <div class="flex items-center gap-2 flex-1">
+                                            <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                                <span class="text-primary text-xs font-bold"><?php echo strtoupper(substr($user['firstname'], 0, 1) . substr($user['lastname'], 0, 1)); ?></span>
+                                            </div>
+                                            <span class="text-sm text-text-main dark:text-white font-medium"><?php echo htmlspecialchars($user['firstname'] . ' ' . $user['lastname']); ?></span>
+                                        </div>
+                                    </label>
                                 <?php endforeach; ?>
-                            </select>
+                            </div>
+                            <p class="text-xs text-text-secondary mt-2">
+                                <span id="selectedCount">0</span> user(s) selected
+                            </p>
                         </div>
                         <div class="flex gap-3 pt-4">
                             <button type="button" onclick="closeAddMemberModal()" class="flex-1 px-4 py-2 border border-border-light dark:border-border-dark text-text-secondary rounded-lg hover:bg-background-light dark:hover:bg-slate-700 transition-colors">Cancel</button>
-                            <button type="submit" class="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors">Add Member</button>
+                            <button type="submit" id="addMembersBtn" class="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <span id="addBtnText">Add Members</span>
+                            </button>
                         </div>
                     </form>
                 <?php endif; ?>
@@ -498,21 +521,56 @@ while ($row = $result->fetch_assoc()) {
 
         function closeAddMemberModal() {
             document.getElementById('addMemberModal').classList.add('hidden');
-        }
-
-        function openProjectModal() {
-            document.getElementById('projectModal').classList.remove('hidden');
-        }
-
-        function closeProjectModal() {
-            document.getElementById('projectModal').classList.add('hidden');
-        }
-
-        function deleteTeam() {
-            if (confirm('Are you sure you want to delete this team? This will also delete all associated projects and remove all team members. This action cannot be undone.')) {
-                window.location.href = 'teams.php?delete=<?php echo $team_id; ?>';
+            // Reset form and checkboxes
+            const form = document.getElementById('addMemberForm');
+            if (form) {
+                form.reset();
+                updateSelectedCount();
             }
         }
+
+        function updateSelectedCount() {
+            const checkboxes = document.querySelectorAll('.member-checkbox:checked');
+            const count = checkboxes.length;
+            const countEl = document.getElementById('selectedCount');
+            const btn = document.getElementById('addMembersBtn');
+            const btnText = document.getElementById('addBtnText');
+
+            if (countEl) countEl.textContent = count;
+            if (btn) btn.disabled = count === 0;
+            if (btnText) btnText.textContent = count === 1 ? 'Add Member' : `Add ${count} Members`;
+        }
+
+        function toggleSelectAll() {
+            const checkboxes = document.querySelectorAll('.member-checkbox');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+
+            checkboxes.forEach(cb => {
+                cb.checked = !allChecked;
+            });
+
+            updateSelectedCount();
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSelectedCount();
+        });
+    </script>
+
+    function openProjectModal() {
+    document.getElementById('projectModal').classList.remove('hidden');
+    }
+
+    function closeProjectModal() {
+    document.getElementById('projectModal').classList.add('hidden');
+    }
+
+    function deleteTeam() {
+    if (confirm('Are you sure you want to delete this team? This will also delete all associated projects and remove all team members. This action cannot be undone.')) {
+    window.location.href = 'teams.php?delete=<?php echo $team_id; ?>';
+    }
+    }
     </script>
 </body>
 

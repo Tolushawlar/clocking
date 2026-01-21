@@ -3,9 +3,7 @@ require_once '../lib/constant.php';
 session_start();
 
 if (!isset($_SESSION['business_id'])) {
-    // For testing, set default session values
     $_SESSION['business_id'] = 1;
-    $_SESSION['user_id'] = 1;
     $_SESSION['firstname'] = 'Admin';
     $_SESSION['lastname'] = 'User';
 }
