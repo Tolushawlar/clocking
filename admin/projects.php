@@ -4,13 +4,11 @@ session_start();
 
 if (!isset($_SESSION['business_id'])) {
     $_SESSION['business_id'] = 1;
-    $_SESSION['user_id'] = 1;
     $_SESSION['firstname'] = 'Admin';
     $_SESSION['lastname'] = 'User';
 }
 
 $business_id = $_SESSION['business_id'];
-$user_id = $_SESSION['user_id'] ?? 1;
 
 // Handle project creation
 if (isset($_POST['create_project'])) {
@@ -34,7 +32,7 @@ if (isset($_POST['create_project'])) {
 
     try {
         $stmt = $db->prepare("INSERT INTO projects (business_id, name, description, client_name, team_id, start_date, end_date, budget_hours, created_by, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')");
-        $stmt->bind_param("isssissii", $business_id, $name, $description, $client_name, $team_id, $start_date, $end_date, $budget_hours, $user_id);
+        $stmt->bind_param("isssissii", $business_id, $name, $description, $client_name, $team_id, $start_date, $end_date, $budget_hours, $business_id);
 
         if ($stmt->execute()) {
             header('Location: projects.php?msg=Project created successfully');
@@ -166,94 +164,111 @@ $teams = $teams_stmt->get_result();
                     <?php endif; ?>
 
                     <!-- Projects Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <?php while ($project = $projects->fetch_assoc()): ?>
-                            <?php
-                            $progress = $project['task_count'] > 0 ? round(($project['completed_tasks'] / $project['task_count']) * 100) : 0;
-                            $status_colors = [
-                                'active' => 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-                                'completed' => 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-                                'on_hold' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-                                'planning' => 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
-                            ];
-                            ?>
-                            <div class="bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark shadow-sm p-6 hover:shadow-md transition-shadow">
-                                <div class="flex items-start justify-between mb-4">
-                                    <div class="flex-1">
-                                        <h3 class="text-lg font-semibold text-text-main dark:text-white"><?php echo htmlspecialchars($project['name']); ?></h3>
-                                        <p class="text-sm text-text-secondary mt-1"><?php echo htmlspecialchars(substr($project['description'] ?? '', 0, 80)); ?><?php echo strlen($project['description'] ?? '') > 80 ? '...' : ''; ?></p>
-                                    </div>
-                                    <span class="px-2 py-1 text-xs font-medium rounded-full <?php echo $status_colors[$project['status']] ?? $status_colors['planning']; ?>">
-                                        <?php echo ucfirst(str_replace('_', ' ', $project['status'])); ?>
-                                    </span>
-                                </div>
-
-                                <div class="space-y-3">
-                                    <?php if ($project['team_name']): ?>
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                                                <span class="material-symbols-outlined text-green-600 dark:text-green-400 text-sm">group</span>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm font-medium text-text-main dark:text-white">Team</p>
-                                                <p class="text-xs text-text-secondary"><?php echo htmlspecialchars($project['team_name']); ?></p>
-                                            </div>
+                    <?php if ($projects->num_rows > 0): ?>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <?php while ($project = $projects->fetch_assoc()): ?>
+                                <?php
+                                $progress = $project['task_count'] > 0 ? round(($project['completed_tasks'] / $project['task_count']) * 100) : 0;
+                                $status_colors = [
+                                    'active' => 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+                                    'completed' => 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+                                    'on_hold' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+                                    'planning' => 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
+                                ];
+                                ?>
+                                <div class="bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark shadow-sm p-6 hover:shadow-md transition-shadow">
+                                    <div class="flex items-start justify-between mb-4">
+                                        <div class="flex-1">
+                                            <h3 class="text-lg font-semibold text-text-main dark:text-white"><?php echo htmlspecialchars($project['name']); ?></h3>
+                                            <p class="text-sm text-text-secondary mt-1"><?php echo htmlspecialchars(substr($project['description'] ?? '', 0, 80)); ?><?php echo strlen($project['description'] ?? '') > 80 ? '...' : ''; ?></p>
                                         </div>
-                                    <?php endif; ?>
-
-                                    <?php if ($project['client_name']): ?>
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                                                <span class="material-symbols-outlined text-primary text-sm">business</span>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm font-medium text-text-main dark:text-white">Client</p>
-                                                <p class="text-xs text-text-secondary"><?php echo htmlspecialchars($project['client_name']); ?></p>
-                                            </div>
-                                        </div>
-                                    <?php endif; ?>
-
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
-                                            <span class="material-symbols-outlined text-text-secondary text-sm">task_alt</span>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-medium text-text-main dark:text-white"><?php echo $project['task_count']; ?> Tasks</p>
-                                            <p class="text-xs text-text-secondary"><?php echo $project['completed_tasks']; ?> completed (<?php echo $progress; ?>%)</p>
-                                        </div>
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full <?php echo $status_colors[$project['status']] ?? $status_colors['planning']; ?>">
+                                            <?php echo ucfirst(str_replace('_', ' ', $project['status'])); ?>
+                                        </span>
                                     </div>
 
-                                    <?php if ($project['phase_count'] > 0): ?>
+                                    <div class="space-y-3">
+                                        <?php if ($project['team_name']): ?>
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                                                    <span class="material-symbols-outlined text-green-600 dark:text-green-400 text-sm">group</span>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-medium text-text-main dark:text-white">Team</p>
+                                                    <p class="text-xs text-text-secondary"><?php echo htmlspecialchars($project['team_name']); ?></p>
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <?php if ($project['client_name']): ?>
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                                                    <span class="material-symbols-outlined text-primary text-sm">business</span>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-medium text-text-main dark:text-white">Client</p>
+                                                    <p class="text-xs text-text-secondary"><?php echo htmlspecialchars($project['client_name']); ?></p>
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
+
                                         <div class="flex items-center gap-3">
-                                            <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
-                                                <span class="material-symbols-outlined text-purple-600 dark:text-purple-400 text-sm">view_timeline</span>
+                                            <div class="w-8 h-8 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
+                                                <span class="material-symbols-outlined text-text-secondary text-sm">task_alt</span>
                                             </div>
                                             <div>
-                                                <p class="text-sm font-medium text-text-main dark:text-white"><?php echo $project['phase_count']; ?> Phases</p>
-                                                <p class="text-xs text-text-secondary"><?php echo $project['completed_phases']; ?> completed</p>
+                                                <p class="text-sm font-medium text-text-main dark:text-white"><?php echo $project['task_count']; ?> Tasks</p>
+                                                <p class="text-xs text-text-secondary"><?php echo $project['completed_tasks']; ?> completed (<?php echo $progress; ?>%)</p>
                                             </div>
                                         </div>
-                                    <?php endif; ?>
 
-                                    <?php if ($project['end_date']): ?>
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
-                                                <span class="material-symbols-outlined text-orange-600 dark:text-orange-400 text-sm">schedule</span>
+                                        <?php if ($project['phase_count'] > 0): ?>
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                                                    <span class="material-symbols-outlined text-purple-600 dark:text-purple-400 text-sm">view_timeline</span>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-medium text-text-main dark:text-white"><?php echo $project['phase_count']; ?> Phases</p>
+                                                    <p class="text-xs text-text-secondary"><?php echo $project['completed_phases']; ?> completed</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p class="text-sm font-medium text-text-main dark:text-white">Due Date</p>
-                                                <p class="text-xs text-text-secondary"><?php echo date('M j, Y', strtotime($project['end_date'])); ?></p>
-                                            </div>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
+                                        <?php endif; ?>
 
-                                <div class="mt-4 pt-4 border-t border-border-light dark:border-border-dark">
-                                    <a href="project_details.php?id=<?php echo $project['id']; ?>" class="text-primary text-sm font-medium hover:underline">View Details →</a>
+                                        <?php if ($project['end_date']): ?>
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
+                                                    <span class="material-symbols-outlined text-orange-600 dark:text-orange-400 text-sm">schedule</span>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-medium text-text-main dark:text-white">Due Date</p>
+                                                    <p class="text-xs text-text-secondary"><?php echo date('M j, Y', strtotime($project['end_date'])); ?></p>
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <div class="mt-4 pt-4 border-t border-border-light dark:border-border-dark">
+                                        <a href="project_details.php?id=<?php echo $project['id']; ?>" class="text-primary text-sm font-medium hover:underline">View Details →</a>
+                                    </div>
                                 </div>
+                            <?php endwhile; ?>
+                        </div>
+                    <?php else: ?>
+                        <!-- Empty State -->
+                        <div class="flex flex-col items-center justify-center py-16 px-4">
+                            <div class="w-32 h-32 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-full flex items-center justify-center mb-6 shadow-lg">
+                                <span class="material-symbols-outlined text-primary dark:text-blue-400" style="font-size: 64px;">folder_open</span>
                             </div>
-                        <?php endwhile; ?>
-                    </div>
+                            <h3 class="text-2xl font-bold text-text-main dark:text-white mb-2">No Projects Yet</h3>
+                            <p class="text-text-secondary text-center max-w-md mb-8">
+                                Start organizing your work by creating your first project. Track progress, manage teams, and deliver exceptional results to your clients.
+                            </p>
+                            <button onclick="openCreateModal()" class="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white px-6 py-3 rounded-lg text-sm font-semibold transition-all shadow-lg shadow-blue-200 dark:shadow-none">
+                                <span class="material-symbols-outlined text-lg">add</span>
+                                Create Your First Project
+                            </button>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </main>

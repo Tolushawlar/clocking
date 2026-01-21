@@ -315,119 +315,138 @@ $users = $stmt->get_result();
                     </div>
 
                     <!-- Staff Table -->
-                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
-                            <table class="w-full text-left border-collapse min-w-[800px]">
-                                <thead class="sticky top-0 bg-slate-50 z-10">
-                                    <tr class="border-b border-slate-200">
-                                        <th class="py-3 px-4 w-12">
-                                            <input class="rounded border-gray-300 text-primary focus:ring-primary/20 cursor-pointer w-4 h-4" type="checkbox" />
-                                        </th>
-                                        <th class="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider min-w-[200px]">Employee</th>
-                                        <th class="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider min-w-[120px]">Staff ID</th>
-                                        <th class="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider min-w-[100px]">Role</th>
-                                        <th class="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider min-w-[100px]">Status</th>
-                                        <th class="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center min-w-[100px]">Barcode</th>
-                                        <th class="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right min-w-[120px]">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-200">
-                                    <?php while ($user = $users->fetch_assoc()): ?>
-                                        <tr class="group hover:bg-slate-50/50 transition-colors">
-                                            <td class="py-4 px-4">
+                    <?php if ($users->num_rows > 0): ?>
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+                                <table class="w-full text-left border-collapse min-w-[800px]">
+                                    <thead class="sticky top-0 bg-slate-50 z-10">
+                                        <tr class="border-b border-slate-200">
+                                            <th class="py-3 px-4 w-12">
                                                 <input class="rounded border-gray-300 text-primary focus:ring-primary/20 cursor-pointer w-4 h-4" type="checkbox" />
-                                            </td>
-                                            <td class="py-4 px-4">
-                                                <div class="flex items-center gap-3">
-                                                    <div class="size-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
-                                                        <?php echo strtoupper(substr($user['firstname'], 0, 1) . substr($user['lastname'], 0, 1)); ?>
-                                                    </div>
-                                                    <div class="min-w-0">
-                                                        <p class="text-sm font-semibold text-slate-900 truncate"><?php echo htmlspecialchars($user['firstname'] . ' ' . $user['lastname']); ?></p>
-                                                        <p class="text-xs text-slate-500 truncate"><?php echo htmlspecialchars($user['email']); ?></p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="py-4 px-4">
-                                                <span class="text-sm font-medium text-slate-500 font-mono"><?php echo htmlspecialchars($user['barcode']); ?></span>
-                                            </td>
-                                            <td class="py-4 px-4">
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap <?php echo $user['category'] == 'staff' ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'bg-orange-50 text-orange-700 border border-orange-100'; ?>">
-                                                    <?php echo ucfirst($user['category']); ?>
-                                                </span>
-                                            </td>
-                                            <td class="py-4 px-4">
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap <?php echo $user['is_active'] ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'; ?>">
-                                                    <span class="size-1.5 rounded-full <?php echo $user['is_active'] ? 'bg-green-500' : 'bg-red-500'; ?>"></span>
-                                                    <?php echo $user['is_active'] ? 'Active' : 'Inactive'; ?>
-                                                </span>
-                                            </td>
-                                            <td class="py-4 px-4 text-center">
-                                                <button class="text-slate-400 hover:text-slate-600 transition-colors inline-flex flex-col items-center group/barcode" title="View Barcode">
-                                                    <span class="material-symbols-outlined text-[20px]">qr_code_2</span>
-                                                    <span class="text-[10px] opacity-0 group-hover/barcode:opacity-100 transition-opacity">View</span>
-                                                </button>
-                                            </td>
-                                            <td class="py-4 px-4 text-right">
-                                                <div class="flex items-center justify-end gap-2">
-                                                    <a href="user.php?id=<?php echo $user['id']; ?>" class="size-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 hover:text-primary transition-colors" title="View Details">
-                                                        <span class="material-symbols-outlined text-[18px]">visibility</span>
-                                                    </a>
-                                                    <button onclick="toggleEdit(<?php echo $user['id']; ?>)" class="size-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 hover:text-primary transition-colors" title="Edit Staff">
-                                                        <span class="material-symbols-outlined text-[18px]">edit</span>
-                                                    </button>
-                                                    <button onclick="confirmDelete(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['firstname'] . ' ' . $user['lastname'], ENT_QUOTES); ?>')" class="size-8 flex items-center justify-center rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors" title="Delete Staff">
-                                                        <span class="material-symbols-outlined text-[18px]">delete</span>
-                                                    </button>
-                                                </div>
-                                            </td>
+                                            </th>
+                                            <th class="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider min-w-[200px]">Employee</th>
+                                            <th class="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider min-w-[120px]">Staff ID</th>
+                                            <th class="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider min-w-[100px]">Role</th>
+                                            <th class="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider min-w-[100px]">Status</th>
+                                            <th class="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center min-w-[100px]">Barcode</th>
+                                            <th class="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right min-w-[120px]">Actions</th>
                                         </tr>
-                                        <!-- Edit Form Row -->
-                                        <tr id="edit-row-<?php echo $user['id']; ?>" class="hidden">
-                                            <td colspan="7" class="p-0">
-                                                <div class="bg-slate-50 p-6 border-t border-slate-200">
-                                                    <form method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                        <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                                                        <div>
-                                                            <label class="block text-sm font-medium text-slate-700 mb-2">Barcode</label>
-                                                            <input type="text" name="barcode" value="<?php echo htmlspecialchars($user['barcode']); ?>" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent font-mono">
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-200">
+                                        <?php while ($user = $users->fetch_assoc()): ?>
+                                            <tr class="group hover:bg-slate-50/50 transition-colors">
+                                                <td class="py-4 px-4">
+                                                    <input class="rounded border-gray-300 text-primary focus:ring-primary/20 cursor-pointer w-4 h-4" type="checkbox" />
+                                                </td>
+                                                <td class="py-4 px-4">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="size-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                                                            <?php echo strtoupper(substr($user['firstname'], 0, 1) . substr($user['lastname'], 0, 1)); ?>
                                                         </div>
-                                                        <div>
-                                                            <label class="block text-sm font-medium text-slate-700 mb-2">First Name</label>
-                                                            <input type="text" name="firstname" value="<?php echo htmlspecialchars($user['firstname']); ?>" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                                        <div class="min-w-0">
+                                                            <p class="text-sm font-semibold text-slate-900 truncate"><?php echo htmlspecialchars($user['firstname'] . ' ' . $user['lastname']); ?></p>
+                                                            <p class="text-xs text-slate-500 truncate"><?php echo htmlspecialchars($user['email']); ?></p>
                                                         </div>
-                                                        <div>
-                                                            <label class="block text-sm font-medium text-slate-700 mb-2">Last Name</label>
-                                                            <input type="text" name="lastname" value="<?php echo htmlspecialchars($user['lastname']); ?>" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-                                                        </div>
-                                                        <div>
-                                                            <label class="block text-sm font-medium text-slate-700 mb-2">Email</label>
-                                                            <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-                                                        </div>
-                                                        <div>
-                                                            <label class="block text-sm font-medium text-slate-700 mb-2">Category</label>
-                                                            <select name="category" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-                                                                <option value="staff" <?php echo $user['category'] == 'staff' ? 'selected' : ''; ?>>Staff</option>
-                                                                <option value="student" <?php echo $user['category'] == 'student' ? 'selected' : ''; ?>>Student</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="flex items-end gap-2">
-                                                            <button type="submit" name="update_user" class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors text-sm">
-                                                                Update
-                                                            </button>
-                                                            <button type="button" onclick="toggleEdit(<?php echo $user['id']; ?>)" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors text-sm">
-                                                                Cancel
-                                                            </button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                </tbody>
-                            </table>
+                                                    </div>
+                                                </td>
+                                                <td class="py-4 px-4">
+                                                    <span class="text-sm font-medium text-slate-500 font-mono"><?php echo htmlspecialchars($user['barcode']); ?></span>
+                                                </td>
+                                                <td class="py-4 px-4">
+                                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap <?php echo $user['category'] == 'staff' ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'bg-orange-50 text-orange-700 border border-orange-100'; ?>">
+                                                        <?php echo ucfirst($user['category']); ?>
+                                                    </span>
+                                                </td>
+                                                <td class="py-4 px-4">
+                                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap <?php echo $user['is_active'] ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'; ?>">
+                                                        <span class="size-1.5 rounded-full <?php echo $user['is_active'] ? 'bg-green-500' : 'bg-red-500'; ?>"></span>
+                                                        <?php echo $user['is_active'] ? 'Active' : 'Inactive'; ?>
+                                                    </span>
+                                                </td>
+                                                <td class="py-4 px-4 text-center">
+                                                    <button class="text-slate-400 hover:text-slate-600 transition-colors inline-flex flex-col items-center group/barcode" title="View Barcode">
+                                                        <span class="material-symbols-outlined text-[20px]">qr_code_2</span>
+                                                        <span class="text-[10px] opacity-0 group-hover/barcode:opacity-100 transition-opacity">View</span>
+                                                    </button>
+                                                </td>
+                                                <td class="py-4 px-4 text-right">
+                                                    <div class="flex items-center justify-end gap-2">
+                                                        <a href="user.php?id=<?php echo $user['id']; ?>" class="size-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 hover:text-primary transition-colors" title="View Details">
+                                                            <span class="material-symbols-outlined text-[18px]">visibility</span>
+                                                        </a>
+                                                        <button onclick="toggleEdit(<?php echo $user['id']; ?>)" class="size-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 hover:text-primary transition-colors" title="Edit Staff">
+                                                            <span class="material-symbols-outlined text-[18px]">edit</span>
+                                                        </button>
+                                                        <button onclick="confirmDelete(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['firstname'] . ' ' . $user['lastname'], ENT_QUOTES); ?>')" class="size-8 flex items-center justify-center rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors" title="Delete Staff">
+                                                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <!-- Edit Form Row -->
+                                            <tr id="edit-row-<?php echo $user['id']; ?>" class="hidden">
+                                                <td colspan="7" class="p-0">
+                                                    <div class="bg-slate-50 p-6 border-t border-slate-200">
+                                                        <form method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                            <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                                                            <div>
+                                                                <label class="block text-sm font-medium text-slate-700 mb-2">Barcode</label>
+                                                                <input type="text" name="barcode" value="<?php echo htmlspecialchars($user['barcode']); ?>" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent font-mono">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-sm font-medium text-slate-700 mb-2">First Name</label>
+                                                                <input type="text" name="firstname" value="<?php echo htmlspecialchars($user['firstname']); ?>" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-sm font-medium text-slate-700 mb-2">Last Name</label>
+                                                                <input type="text" name="lastname" value="<?php echo htmlspecialchars($user['lastname']); ?>" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-sm font-medium text-slate-700 mb-2">Email</label>
+                                                                <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-sm font-medium text-slate-700 mb-2">Category</label>
+                                                                <select name="category" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                                                    <option value="staff" <?php echo $user['category'] == 'staff' ? 'selected' : ''; ?>>Staff</option>
+                                                                    <option value="student" <?php echo $user['category'] == 'student' ? 'selected' : ''; ?>>Student</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="flex items-end gap-2">
+                                                                <button type="submit" name="update_user" class="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors text-sm">
+                                                                    Update
+                                                                </button>
+                                                                <button type="button" onclick="toggleEdit(<?php echo $user['id']; ?>)" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors text-sm">
+                                                                    Cancel
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endwhile; ?>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
+                    <?php else: ?>
+                        <!-- Empty State -->
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div class="flex flex-col items-center justify-center py-16 px-4">
+                                <div class="w-32 h-32 bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-full flex items-center justify-center mb-6 shadow-lg">
+                                    <span class="material-symbols-outlined text-primary dark:text-blue-400" style="font-size: 64px;">person_add</span>
+                                </div>
+                                <h3 class="text-2xl font-bold text-text-main dark:text-white mb-2">No Staff Members Yet</h3>
+                                <p class="text-text-secondary text-center max-w-md mb-8">
+                                    Get started by adding your first staff member. Build your team directory to manage attendance, track activities, and streamline your workforce management.
+                                </p>
+                                <button onclick="toggleCreateForm()" class="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white px-6 py-3 rounded-lg text-sm font-semibold transition-all shadow-lg shadow-blue-200 dark:shadow-none">
+                                    <span class="material-symbols-outlined text-lg">add</span>
+                                    Add Your First Staff Member
+                                </button>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </main>
