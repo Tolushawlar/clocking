@@ -3,15 +3,12 @@ require_once '../lib/constant.php';
 session_start();
 
 if (!isset($_SESSION['business_id'])) {
-    $_SESSION['business_id'] = 1;
-    $_SESSION['user_id'] = 1;
-    $_SESSION['firstname'] = 'Admin';
-    $_SESSION['lastname'] = 'User';
+    header('Location: ../index.php');
+    exit;
 }
 
 $team_id = $_GET['id'] ?? 0;
 $business_id = $_SESSION['business_id'];
-$user_id = $_SESSION['user_id'] ?? 1;
 
 // Handle form submissions
 if ($_POST) {
@@ -86,7 +83,7 @@ if ($_POST) {
         $end_date = $_POST['end_date'];
 
         $stmt = $db->prepare("INSERT INTO projects (business_id, team_id, name, description, start_date, end_date, status, created_by) VALUES (?, ?, ?, ?, ?, ?, 'active', ?)");
-        $stmt->bind_param("iissssi", $business_id, $team_id, $name, $description, $start_date, $end_date, $user_id);
+        $stmt->bind_param("iissssi", $business_id, $team_id, $name, $description, $start_date, $end_date, $business_id);
         $stmt->execute();
 
         header('Location: team_details.php?id=' . $team_id . '&msg=Project created successfully');
