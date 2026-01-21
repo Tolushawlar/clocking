@@ -40,8 +40,15 @@ if (isset($_POST['add_subtask'])) {
     $description = trim($_POST['description']);
     $assigned_to = $_POST['assigned_to'] ? (int)$_POST['assigned_to'] : null;
 
+    // Get a valid user ID for created_by
+    $user_stmt = $db->prepare("SELECT id FROM users WHERE business_id = ? LIMIT 1");
+    $user_stmt->bind_param("i", $business_id);
+    $user_stmt->execute();
+    $user_result = $user_stmt->get_result()->fetch_assoc();
+    $created_by = $user_result ? $user_result['id'] : 1;
+
     $stmt = $db->prepare("INSERT INTO tasks (project_id, phase_id, name, description, assigned_to, created_by) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("iissii", $project_id, $phase_id, $name, $description, $assigned_to, $user_id);
+    $stmt->bind_param("iissii", $project_id, $phase_id, $name, $description, $assigned_to, $created_by);
 
     if ($stmt->execute()) {
         header("Location: project_phases.php?id=$project_id&msg=Task added successfully");

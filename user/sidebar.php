@@ -49,6 +49,10 @@ function getFontWeightUser($page, $current)
                     <span class="material-symbols-outlined text-[20px]">assignment</span>
                     <p class="text-sm <?php echo getFontWeightUser('tasks.php', $current_page); ?>">My Tasks</p>
                 </a>
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg <?php echo isActiveUser('reports-history.php', $current_page); ?> transition-colors" href="reports-history.php">
+                    <span class="material-symbols-outlined text-[20px]">history</span>
+                    <p class="text-sm <?php echo getFontWeightUser('reports-history.php', $current_page); ?>">Plans & Reports</p>
+                </a>
                 <!-- <a class="flex items-center gap-3 px-3 py-3 rounded-lg <?php echo isActiveUser('teacher_timetable.php', $current_page); ?> transition-colors" href="../teacher_timetable.php">
                     <span class="material-symbols-outlined text-[20px]">calendar_month</span>
                     <p class="text-sm <?php echo getFontWeightUser('teacher_timetable.php', $current_page); ?>">Timetable</p>
@@ -108,6 +112,10 @@ function getFontWeightUser($page, $current)
                 <a class="flex items-center gap-3 px-3 py-3 rounded-lg <?php echo isActiveUser('projects.php', $current_page); ?> transition-colors" href="projects.php">
                     <span class="material-symbols-outlined text-[20px]">work</span>
                     <p class="text-sm <?php echo getFontWeightUser('projects.php', $current_page); ?>">My Projects</p>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg <?php echo isActiveUser('reports-history.php', $current_page); ?> transition-colors" href="reports-history.php">
+                    <span class="material-symbols-outlined text-[20px]">history</span>
+                    <p class="text-sm <?php echo getFontWeightUser('reports-history.php', $current_page); ?>">Plans & Reports</p>
                 </a>
                 <a class="flex items-center gap-3 px-3 py-3 rounded-lg <?php echo isActiveUser('teacher_timetable.php', $current_page); ?> transition-colors" href="../teacher_timetable.php">
                     <span class="material-symbols-outlined text-[20px]">calendar_month</span>
