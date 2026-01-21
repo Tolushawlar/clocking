@@ -8,7 +8,6 @@ if (!isset($_SESSION['business_id'])) {
 }
 
 $business_id = $_SESSION['business_id'];
-$user_id = $_SESSION['user_id'];
 $project_id = $_GET['project_id'] ?? 0;
 
 if ($_POST) {
@@ -18,7 +17,7 @@ if ($_POST) {
     $due_date = $_POST['due_date'] ?: null;
 
     $stmt = $db->prepare("INSERT INTO tasks (project_id, title, description, assigned_to, due_date, created_by) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("issisi", $project_id, $title, $description, $assigned_to, $due_date, $user_id);
+    $stmt->bind_param("issisi", $project_id, $title, $description, $assigned_to, $due_date, $business_id);
     $stmt->execute();
 
     header("Location: project_details.php?id=$project_id");
