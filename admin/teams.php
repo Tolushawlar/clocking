@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once '../lib/constant.php';
 session_start();
 
@@ -12,26 +16,43 @@ $business_id = $_SESSION['business_id'];
 
 // Handle team creation
 if (isset($_POST['create_team'])) {
-    $name = trim($_POST['name']);
-    $description = trim($_POST['description']);
-    $team_leader_id = $_POST['team_leader_id'];
+    try {
+        $name = trim($_POST['name']);
+        $description = trim($_POST['description']);
+        $team_leader_id = $_POST['team_leader_id'];
 
-    $stmt = $db->prepare("INSERT INTO teams (business_id, name, description, team_leader_id, created_by) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("issii", $business_id, $name, $description, $team_leader_id, $business_id);
+        if (empty($name) || empty($team_leader_id)) {
+            header('Location: teams.php?msg=Name and team leader are required');
+            exit;
+        }
 
-    if ($stmt->execute()) {
-        $team_id = $db->insert_id;
-        // Add team leader as member
-        $stmt = $db->prepare("INSERT INTO team_members (team_id, user_id, added_by) VALUES (?, ?, ?)");
-        $stmt->bind_param("iii", $team_id, $team_leader_id, $business_id);
-        $stmt->execute();
+        // Use team_leader_id as created_by since we don't have a proper admin user system
+        $stmt = $db->prepare("INSERT INTO teams (business_id, name, description, team_leader_id, created_by) VALUES (?, ?, ?, ?, ?)");
+        if (!$stmt) {
+            throw new Exception("Prepare failed: " . $db->error);
+        }
+        
+        $stmt->bind_param("issii", $business_id, $name, $description, $team_leader_id, $team_leader_id);
 
-        // Update user role
-        $stmt = $db->prepare("UPDATE users SET user_role = 'team_leader' WHERE id = ?");
-        $stmt->bind_param("i", $team_leader_id);
-        $stmt->execute();
+        if ($stmt->execute()) {
+            $team_id = $db->insert_id;
+            // Add team leader as member
+            $stmt = $db->prepare("INSERT INTO team_members (team_id, user_id, added_by) VALUES (?, ?, ?)");
+            $stmt->bind_param("iii", $team_id, $team_leader_id, $team_leader_id);
+            $stmt->execute();
 
-        header('Location: teams.php?msg=Team created successfully');
+            // Update user role
+            $stmt = $db->prepare("UPDATE users SET user_role = 'team_leader' WHERE id = ?");
+            $stmt->bind_param("i", $team_leader_id);
+            $stmt->execute();
+
+            header('Location: teams.php?msg=Team created successfully');
+            exit;
+        } else {
+            throw new Exception("Execute failed: " . $stmt->error);
+        }
+    } catch (Exception $e) {
+        header('Location: teams.php?msg=Error: ' . urlencode($e->getMessage()));
         exit;
     }
 }
