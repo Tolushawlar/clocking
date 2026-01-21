@@ -36,6 +36,10 @@ function isActiveIcon($page, $current)
                     <span class="material-symbols-outlined <?php echo isActiveIcon('businesses.php', $current_page); ?>">business</span>
                     <span class="text-sm font-medium">Businesses</span>
                 </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg <?php echo isActive('contact_submissions.php', $current_page); ?> transition-colors group" href="contact_submissions.php">
+                    <span class="material-symbols-outlined <?php echo isActiveIcon('contact_submissions.php', $current_page); ?>">mail</span>
+                    <span class="text-sm font-medium">Contact Submissions</span>
+                </a>
                 <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg <?php echo isActive('settings.php', $current_page); ?> transition-colors group" href="settings.php">
                     <span class="material-symbols-outlined <?php echo isActiveIcon('settings.php', $current_page); ?>">settings</span>
                     <span class="text-sm font-medium">Settings</span>
