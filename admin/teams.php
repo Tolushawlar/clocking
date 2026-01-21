@@ -4,13 +4,11 @@ session_start();
 
 if (!isset($_SESSION['business_id'])) {
     $_SESSION['business_id'] = 1;
-    $_SESSION['user_id'] = 1;
     $_SESSION['firstname'] = 'Admin';
     $_SESSION['lastname'] = 'User';
 }
 
 $business_id = $_SESSION['business_id'];
-$user_id = $_SESSION['user_id'] ?? 1;
 
 // Handle team creation
 if (isset($_POST['create_team'])) {
@@ -19,13 +17,13 @@ if (isset($_POST['create_team'])) {
     $team_leader_id = $_POST['team_leader_id'];
 
     $stmt = $db->prepare("INSERT INTO teams (business_id, name, description, team_leader_id, created_by) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("issii", $business_id, $name, $description, $team_leader_id, $user_id);
+    $stmt->bind_param("issii", $business_id, $name, $description, $team_leader_id, $business_id);
 
     if ($stmt->execute()) {
         $team_id = $db->insert_id;
         // Add team leader as member
         $stmt = $db->prepare("INSERT INTO team_members (team_id, user_id, added_by) VALUES (?, ?, ?)");
-        $stmt->bind_param("iii", $team_id, $team_leader_id, $user_id);
+        $stmt->bind_param("iii", $team_id, $team_leader_id, $business_id);
         $stmt->execute();
 
         // Update user role
@@ -221,52 +219,69 @@ $available_users = $stmt->get_result();
                     <?php endif; ?>
 
                     <!-- Teams Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <?php while ($team = $teams->fetch_assoc()): ?>
-                            <div class="bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark shadow-sm p-6 hover:shadow-md transition-shadow">
-                                <div class="flex items-start justify-between mb-4">
-                                    <div class="flex-1">
-                                        <h3 class="text-lg font-semibold text-text-main dark:text-white"><?php echo htmlspecialchars($team['name']); ?></h3>
-                                        <p class="text-sm text-text-secondary mt-1"><?php echo htmlspecialchars($team['description']); ?></p>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <!-- <button onclick="openMemberModal(<?php echo $team['id']; ?>)" class="text-text-secondary hover:text-primary transition-colors">
-                                    <span class="material-symbols-outlined">person_add</span>
-                                </button> -->
-                                        <button onclick="deleteTeam(<?php echo $team['id']; ?>)" class="text-red-600 hover:text-red-700 transition-colors">
-                                            <span class="material-symbols-outlined">delete</span>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="space-y-3">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
-                                            <span class="material-symbols-outlined text-purple-600 dark:text-purple-400 text-sm">star</span>
+                    <?php if ($teams->num_rows > 0): ?>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <?php while ($team = $teams->fetch_assoc()): ?>
+                                <div class="bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark shadow-sm p-6 hover:shadow-md transition-shadow">
+                                    <div class="flex items-start justify-between mb-4">
+                                        <div class="flex-1">
+                                            <h3 class="text-lg font-semibold text-text-main dark:text-white"><?php echo htmlspecialchars($team['name']); ?></h3>
+                                            <p class="text-sm text-text-secondary mt-1"><?php echo htmlspecialchars($team['description']); ?></p>
                                         </div>
-                                        <div>
-                                            <p class="text-sm font-medium text-text-main dark:text-white">Team Leader</p>
-                                            <p class="text-xs text-text-secondary"><?php echo htmlspecialchars($team['leader_firstname'] . ' ' . $team['leader_lastname']); ?></p>
+                                        <div class="flex items-center gap-2">
+                                            <!-- <button onclick="openMemberModal(<?php echo $team['id']; ?>)" class="text-text-secondary hover:text-primary transition-colors">
+                                        <span class="material-symbols-outlined">person_add</span>
+                                    </button> -->
+                                            <button onclick="deleteTeam(<?php echo $team['id']; ?>)" class="text-red-600 hover:text-red-700 transition-colors">
+                                                <span class="material-symbols-outlined">delete</span>
+                                            </button>
                                         </div>
                                     </div>
 
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                                            <span class="material-symbols-outlined text-green-600 dark:text-green-400 text-sm">group</span>
+                                    <div class="space-y-3">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                                                <span class="material-symbols-outlined text-purple-600 dark:text-purple-400 text-sm">star</span>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-medium text-text-main dark:text-white">Team Leader</p>
+                                                <p class="text-xs text-text-secondary"><?php echo htmlspecialchars($team['leader_firstname'] . ' ' . $team['leader_lastname']); ?></p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p class="text-sm font-medium text-text-main dark:text-white"><?php echo $team['member_count']; ?> Members</p>
-                                            <p class="text-xs text-text-secondary">Including team leader</p>
+
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                                                <span class="material-symbols-outlined text-green-600 dark:text-green-400 text-sm">group</span>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-medium text-text-main dark:text-white"><?php echo $team['member_count']; ?> Members</p>
+                                                <p class="text-xs text-text-secondary">Including team leader</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="mt-4 pt-4 border-t border-border-light dark:border-border-dark">
-                                    <a href="team_details.php?id=<?php echo $team['id']; ?>" class="text-primary text-sm font-medium hover:underline">View Details →</a>
+                                    <div class="mt-4 pt-4 border-t border-border-light dark:border-border-dark">
+                                        <a href="team_details.php?id=<?php echo $team['id']; ?>" class="text-primary text-sm font-medium hover:underline">View Details →</a>
+                                    </div>
                                 </div>
+                            <?php endwhile; ?>
+                        </div>
+                    <?php else: ?>
+                        <!-- Empty State -->
+                        <div class="flex flex-col items-center justify-center py-16 px-4">
+                            <div class="w-32 h-32 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center mb-6 shadow-lg">
+                                <span class="material-symbols-outlined text-primary dark:text-blue-400" style="font-size: 64px;">groups</span>
                             </div>
-                        <?php endwhile; ?>
-                    </div>
+                            <h3 class="text-2xl font-bold text-text-main dark:text-white mb-2">No Teams Yet</h3>
+                            <p class="text-text-secondary text-center max-w-md mb-8">
+                                Get started by creating your first team. Organize your staff into teams with designated leaders to streamline collaboration and project management.
+                            </p>
+                            <button onclick="openCreateModal()" class="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white px-6 py-3 rounded-lg text-sm font-semibold transition-all shadow-lg shadow-blue-200 dark:shadow-none">
+                                <span class="material-symbols-outlined text-lg">add</span>
+                                Create Your First Team
+                            </button>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </main>
