@@ -48,13 +48,20 @@ if ($_POST) {
         $member_ids = $_POST['member_ids'] ?? [];
 
         if (!empty($member_ids)) {
+            // Get a valid user ID for added_by
+            $user_stmt = $db->prepare("SELECT id FROM users WHERE business_id = ? LIMIT 1");
+            $user_stmt->bind_param("i", $business_id);
+            $user_stmt->execute();
+            $user_result = $user_stmt->get_result()->fetch_assoc();
+            $added_by = $user_result ? $user_result['id'] : 1;
+            
             $added_count = 0;
             foreach ($member_ids as $member_id) {
                 $member_id = (int)$member_id;
 
                 $stmt = $db->prepare("INSERT IGNORE INTO team_members (team_id, user_id, added_by) VALUES (?, ?, ?)");
-                $stmt->bind_param("iii", $team_id, $member_id, $business_id);
-                if ($stmt->execute()) {
+                $stmt->bind_param("iii", $team_id, $member_id, $added_by);
+                if ($stmt->execute() && $stmt->affected_rows > 0) {
                     $added_count++;
                 }
 

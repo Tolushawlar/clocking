@@ -30,8 +30,15 @@ if (isset($_POST['create_project'])) {
     }
 
     try {
+        // Get the first user from this business to use as created_by
+        $user_stmt = $db->prepare("SELECT id FROM users WHERE business_id = ? LIMIT 1");
+        $user_stmt->bind_param("i", $business_id);
+        $user_stmt->execute();
+        $user_result = $user_stmt->get_result()->fetch_assoc();
+        $created_by = $user_result ? $user_result['id'] : 1;
+        
         $stmt = $db->prepare("INSERT INTO projects (business_id, name, description, client_name, team_id, start_date, end_date, budget_hours, created_by, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')");
-        $stmt->bind_param("isssissii", $business_id, $name, $description, $client_name, $team_id, $start_date, $end_date, $budget_hours, $business_id);
+        $stmt->bind_param("isssissii", $business_id, $name, $description, $client_name, $team_id, $start_date, $end_date, $budget_hours, $created_by);
 
         if ($stmt->execute()) {
             header('Location: projects.php?msg=Project created successfully');

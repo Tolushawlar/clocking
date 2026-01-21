@@ -17,7 +17,7 @@ if ($_POST) {
     $assigned_to = $_POST['assigned_to'] ?: null;
     $due_date = $_POST['due_date'] ?: null;
 
-    $stmt = $db->prepare("UPDATE tasks SET title = ?, description = ?, status = ?, assigned_to = ?, due_date = ? WHERE id = ?");
+    $stmt = $db->prepare("UPDATE tasks SET name = ?, description = ?, status = ?, assigned_to = ?, due_date = ? WHERE id = ?");
     $stmt->bind_param("sssisi", $title, $description, $status, $assigned_to, $due_date, $task_id);
     $stmt->execute();
 
