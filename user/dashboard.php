@@ -580,12 +580,16 @@ $today_report = $stmt->get_result()->fetch_assoc();
 
         function editPlan() {
             document.getElementById('plan-modal').classList.remove('hidden');
-            document.querySelector('textarea[name="plan"]').value = '<?php echo addslashes($today_report['plan'] ?? ''); ?>';
+            <?php if (isset($today_report['plan'])): ?>
+                document.querySelector('textarea[name="plan"]').value = <?php echo json_encode($today_report['plan']); ?>;
+            <?php endif; ?>
         }
 
         function editReport() {
             document.getElementById('report-modal').classList.remove('hidden');
-            document.querySelector('textarea[name="daily_report"]').value = '<?php echo addslashes($today_report['daily_report'] ?? ''); ?>';
+            <?php if (isset($today_report['daily_report'])): ?>
+                document.querySelector('textarea[name="daily_report"]').value = <?php echo json_encode($today_report['daily_report']); ?>;
+            <?php endif; ?>
         }
 
         // Add hidden submit buttons for form submission
